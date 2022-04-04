@@ -1,10 +1,16 @@
 import { endOfMonth, parseISO, startOfMonth } from "date-fns";
+import { ObjectId } from "mongodb";
 import { CalendarEvent } from "../models/CalendarEvent";
 import { connectToDatabase } from "./mongodb";
 
 export const saveEvent = async (event: CalendarEvent) => {
   const { db } = await connectToDatabase();
   return db.collection("Event").insertOne(event);
+};
+
+export const deleteEvent = async (id: any) => {
+  const { db } = await connectToDatabase();
+  return db.collection("Event").deleteOne({ _id: new ObjectId(id) });
 };
 
 export const getAllEventByRange = async (start: Date, end: Date) => {

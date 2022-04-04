@@ -1,8 +1,9 @@
 export type CalendarEvent = {
-    title:string,
-    created:Date,
-    start:Date,
-    end:Date,
-    employee:string,
-    shift:string,
-}
+  _id?: any;
+  title: string;
+  created: Date;
+  start: Date;
+  end: Date;
+  employee: string;
+  shift: string;
+};

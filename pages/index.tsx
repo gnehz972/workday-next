@@ -1,11 +1,5 @@
-import type { GetServerSideProps, NextPage } from "next";
-import Head from "next/head";
-import Image from "next/image";
-import styles from "../styles/Home.module.css";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import { WorkCalendar } from "../component/WorkCalendar";
-import { connectToDatabase } from "../utils/mongodb";
-import { CalendarEvent } from "../models/CalendarEvent";
+import MailIcon from "@mui/icons-material/Mail";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
 import {
   AppBar,
   Box,
@@ -20,27 +14,15 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
 import { useState } from "react";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import { ExportBoard } from "../component/ExportBoard";
-
-type CalendarEventProps = {
-  title: string;
-  employee: string;
-  shift: string;
-  start: Date;
-  end: string;
-  created: string;
-};
-type Props = {
-  eventProps: CalendarEvent[];
-};
+import { WorkCalendar } from "../component/WorkCalendar";
+import { CalendarEvent } from "../models/CalendarEvent";
 
 const drawerWidth = 240;
 
-const Home = ({ eventProps }: Props) => {
-  console.log(eventProps);
+const Home = () => {
   const [currentItem, setCurrentItem] = useState("Calendar");
 
   const onClickItem = (item: string) => {
@@ -121,7 +103,7 @@ const Home = ({ eventProps }: Props) => {
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
 
-        {currentItem === "Calendar" && <WorkCalendar events={eventProps} />}
+        <WorkCalendar visible={currentItem === "Calendar"} />
         {currentItem === "Export excel" && <ExportBoard />}
 
         {currentItem !== "Calendar" && currentItem !== "Export excel" && (
@@ -133,18 +115,3 @@ const Home = ({ eventProps }: Props) => {
 };
 
 export default Home;
-
-export const getServerSideProps: GetServerSideProps = async (context: any) => {
-  const { db } = await connectToDatabase();
-
-  const result = (await db
-    .collection("Event")
-    .find({})
-    .toArray()) as CalendarEvent[];
-
-  console.log(result);
-
-  return {
-    props: { eventProps: JSON.parse(JSON.stringify(result)) },
-  };
-};

@@ -4,7 +4,7 @@ import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import enUS from "date-fns/locale/en-US";
-import { FC, useCallback, useMemo, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarEvent } from "../models/CalendarEvent";
 import {
   Button,
@@ -19,7 +19,13 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { connectToDatabase } from "../utils/mongodb";
+import { endOfMonth, startOfMonth } from "date-fns";
+import {
+  formatQueryDate,
+  formatReadDate,
+  receiver,
+} from "../utils/date-helper";
+import { Box } from "@mui/system";
 
 const locales = {
   "en-US": enUS,
@@ -33,63 +39,62 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const eventsSample = [
-  // {
-  //   title: 'Board meeting xxxx',
-  //   start: "2022-03-30T12:51:15.361Z",
-  //   end: "2022-03-31T12:51:15.361Z",
-  // },
-  // {
-  //   id: 1,
-  //   title: 'MS training',
-  //   allDay: true,
-  //   start: new Date(2022, 0, 29, 14, 0, 0),
-  //   end: new Date(2022, 0, 29, 16, 30, 0),
-  //   resourceId: 2,
-  // },
-  // {
-  //   id: 2,
-  //   title: 'Team lead meeting',
-  //   start: new Date(2022, 0, 29, 8, 30, 0),
-  //   end: new Date(2022, 0, 29, 12, 30, 0),
-  //   resourceId: 3,
-  // },
-  // {
-  //   id: 11,
-  //   title: 'Birthday Party',
-  //   start: new Date(2022, 0, 30, 7, 0, 0),
-  //   end: new Date(2022, 0, 30, 10, 30, 0),
-  //   resourceId: 4,
-  // },
-];
-
-export type WorkCalendarProps = {
-  events: CalendarEvent[];
+type Props = {
+  visible: boolean;
 };
 
-export const WorkCalendar: FC<WorkCalendarProps> = ({ events }) => {
-  const [myEvents, setEvents] = useState(events);
+export const WorkCalendar: FC<Props> = ({ visible }) => {
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+
+  const fetchEvent = async () => {
+    console.log("zoz fetch event");
+    const date = new Date();
+    const start = startOfMonth(date);
+    const end = endOfMonth(date);
+    const response = await fetch(
+      `/api/calendar-events?start=${formatQueryDate(
+        start
+      )}&end=${formatQueryDate(end)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
+    const content = await response.json();
+    const events = JSON.parse(JSON.stringify(content), receiver);
+    console.log("zoz content=", content);
+    console.log("zoz events=", events);
+
+    setEvents(events);
+  };
+
+  useEffect(() => {
+    fetchEvent();
+  }, []);
+
+  console.log("zoz WorkCalendar event=", events);
+
+  // const [myEvents, setEvents] = useState(events);
   const [timeSlot, setTimeSlot] = useState({
     start: new Date(),
     end: new Date(),
   });
 
-  const handleSelectSlot = useCallback(
-    ({ start, end }) => {
-      setTimeSlot({ start, end });
-      handleClickOpen();
-      // const title = window.prompt('New Event Name')
-      // if (title) {
-      //   setEvents((prev) => [...prev, { start, end, title } as any])
-      // }
-    },
-    [setEvents]
-  );
+  const handleSelectSlot = useCallback(({ start, end }) => {
+    setTimeSlot({ start, end });
+    handleClickOpen();
+  }, []);
 
-  const handleSelectEvent = useCallback(
-    (event) => window.alert(event.title),
-    []
-  );
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent>();
+
+  const handleSelectEvent = useCallback((event) => {
+    console.log("zoz selected event=", event);
+
+    setSelectedEvent(event);
+  }, []);
 
   const { defaultDate, scrollToTime } = useMemo(
     () => ({
@@ -139,10 +144,6 @@ export const WorkCalendar: FC<WorkCalendarProps> = ({ events }) => {
       },
       body: JSON.stringify(event),
     });
-    // const {db} = await connectToDatabase();
-
-    // await db.collection("Event")
-    // .insertOne(event);
 
     setEvents((pre) => [...pre, event]);
     console.log("save");
@@ -150,13 +151,35 @@ export const WorkCalendar: FC<WorkCalendarProps> = ({ events }) => {
     setOpen(false);
   };
 
+  const handleDeleteEvent = async (event: CalendarEvent) => {
+    await deleteCalendarEvent(event);
+    await fetchEvent();
+    setSelectedEvent(undefined);
+  };
+
+  const deleteCalendarEvent = async (event: CalendarEvent) => {
+    await fetch("/api/calendar-event", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(event._id),
+    });
+    setSelectedEvent(undefined);
+  };
+
+  if (!visible) {
+    return null;
+  }
+
   return (
-    <div>
+    <Box>
       <Calendar
         dayLayoutAlgorithm={dayLayoutAlgorithm}
         defaultDate={defaultDate}
         defaultView={Views.MONTH}
-        events={myEvents}
+        events={events}
         localizer={localizer}
         onSelectEvent={handleSelectEvent}
         onSelectSlot={handleSelectSlot}
@@ -202,6 +225,32 @@ export const WorkCalendar: FC<WorkCalendarProps> = ({ events }) => {
           <Button onClick={saveCalendarEvent}>添加</Button>
         </DialogActions>
       </Dialog>
-    </div>
+
+      <Dialog open={selectedEvent != undefined} fullWidth>
+        <DialogTitle>排班安排</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {selectedEvent && selectedEvent.title}
+            <br></br>
+            开始时间：
+            {selectedEvent && formatReadDate(selectedEvent.start)}
+            <br></br>
+            结束时间：
+            {selectedEvent && formatReadDate(selectedEvent.end)}
+          </DialogContentText>
+          {/* <DialogContentText>{selectedEvent?.title}</DialogContentText>
+          <DialogContentText>
+            开始时间： {selectedEvent?.start}
+          </DialogContentText>
+          <DialogContentText>结束时间：{selectedEvent?.end}</DialogContentText> */}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSelectedEvent(undefined)}>取消</Button>
+          <Button onClick={() => handleDeleteEvent(selectedEvent!!)}>
+            删除
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };

@@ -9,12 +9,11 @@ export const parseQueryDate = (dateString: string) =>
 
 export const formatQueryDate = (date: Date) => format(date, queryDatePattern);
 
-const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
+export const formatReadDate = (date: Date) => format(date, "yyyy年MM月dd日");
 
+const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
 export const receiver = (key: string, value: any) => {
   if (typeof value === "string" && dateFormat.test(value)) {
-    console.log("zoz receiver", value);
-
     return new Date(value);
   }
 
