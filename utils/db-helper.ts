@@ -9,23 +9,15 @@ export const saveEvent = async (event: CalendarEvent) => {
 
 export const getAllEventByRange = async (start: Date, end: Date) => {
   const { db } = await connectToDatabase();
-  const result = (
-    await db
-      .collection("Event")
-      .find({})
-      // .find({
-      //   $or: [
-      //     { start: { $gte: start, $lte: end } },
-      //     { end: { $gte: start, $lte: end } },
-      //   ],
-      // })
-      .toArray()
-  ).map((it: any) => ({
-    ...it,
-    start: parseISO(it.start),
-    end: parseISO(it.end),
-    created: parseISO(it.created),
-  }));
+  const result = await db
+    .collection("Event")
+    .find({
+      $or: [
+        { start: { $gte: start, $lte: end } },
+        { end: { $gte: start, $lte: end } },
+      ],
+    })
+    .toArray();
 
   return result;
 };

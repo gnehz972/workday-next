@@ -5,21 +5,23 @@ import {
   Box,
   Button,
   Divider,
+  Link,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import { startOfMonth, endOfMonth } from "date-fns";
+import { startOfMonth, endOfMonth, format } from "date-fns";
 import { FC, useState } from "react";
 import SaveIcon from "@mui/icons-material/Save";
+import { formatQueryDate } from "../utils/date-helper";
 
 export const ExportBoard: FC = () => {
   const date = new Date();
   const [start, setStart] = useState(startOfMonth(date));
   const [end, setEnd] = useState(endOfMonth(date));
-  const exportAndDownloadExcel = () => {
-    // exportExcel();
-  };
+  const startTime = formatQueryDate(start);
+  const endTime = formatQueryDate(end);
+
   return (
     <Box>
       <Stack direction="row" spacing={2} alignItems={"center"}>
@@ -57,16 +59,22 @@ export const ExportBoard: FC = () => {
         <Item>Item 3</Item> */}
       </Stack>
 
-      <LoadingButton
-        sx={{ marginTop: 5 }}
-        loading={false}
-        loadingPosition="start"
-        variant="contained"
-        startIcon={<SaveIcon />}
-        onClick={exportAndDownloadExcel}
+      <Link
+        href={`/api/exportExcel?start=${startTime}&end=${endTime}`}
+        target={"_blank"}
+        rel={"noreferrer"}
+        download
       >
-        导出排班表
-      </LoadingButton>
+        <LoadingButton
+          sx={{ marginTop: 5 }}
+          loading={false}
+          loadingPosition="start"
+          variant="contained"
+          startIcon={<SaveIcon />}
+        >
+          导出排班表
+        </LoadingButton>
+      </Link>
     </Box>
   );
 };

@@ -1,4 +1,4 @@
-import { getAllEventOfCurrentMonth } from "./db-helper";
+import { getAllEventByRange, getAllEventOfCurrentMonth } from "./db-helper";
 import { Workbook } from "exceljs";
 import {
   addDays,
@@ -12,9 +12,10 @@ import { da } from "date-fns/locale";
 import { CalendarEvent } from "../models/CalendarEvent";
 import { DayEvent } from "../models/DayEvent";
 import { chain, find, flow, groupBy, map, orderBy } from "lodash";
+import { getDaysBetweenDates, splitToDayEvent } from "./date-helper";
 
-export const exportExcel = async () => {
-  const allEvent = await getAllEventOfCurrentMonth();
+export const exportExcel = async (startTime: Date, endTime: Date) => {
+  const allEvent = await getAllEventByRange(startTime, endTime);
 
   console.log("allevent=", allEvent);
 
@@ -33,7 +34,7 @@ export const exportExcel = async () => {
   const end = endOfMonth(date);
   const monthDays = getDaysBetweenDates(start, end);
   monthDays.forEach((day) => {
-    const formated = formatDate(day);
+    const formated = formatDateAsHeader(day);
     columns.push({
       header: formated,
       width: 10,
@@ -64,38 +65,9 @@ export const exportExcel = async () => {
   console.log("rows=", rows);
 
   sheet.addRows(rows);
+  return workbook.xlsx.writeBuffer();
 
-  await workbook.xlsx.writeFile("export.xlsx");
+  //   await workbook.xlsx.writeFile("export.xlsx");
 };
 
-const splitToDayEvent = (calendarEvents: CalendarEvent[]) => {
-  const dayEvents: DayEvent[] = [];
-
-  calendarEvents.forEach((event) => {
-    const days = getDaysBetweenDates(event.start, event.end);
-    days.forEach((day) => {
-      const dayEvent = {
-        day: day,
-        shift: event.shift,
-        employee: event.employee,
-      };
-      dayEvents.push(dayEvent);
-    });
-  });
-
-  return dayEvents;
-};
-
-const getDaysBetweenDates = (start: Date, end: Date) => {
-  const dayCount = differenceInDays(end, start);
-  console.log("dayCount=", dayCount);
-
-  const days = [];
-  for (let count = 0; count < dayCount; count++) {
-    const day = addDays(start, count);
-    days.push(day);
-  }
-  return days;
-};
-
-const formatDate = (day: Date) => format(day, "yyyy年MM月dd日");
+const formatDateAsHeader = (day: Date) => format(day, "yyyy年MM月dd日");
