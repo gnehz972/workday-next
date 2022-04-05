@@ -14,15 +14,22 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import { GetServerSideProps } from "next";
 import { useState } from "react";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { ExportBoard } from "../component/ExportBoard";
 import { WorkCalendar } from "../component/WorkCalendar";
+import { Employees } from "../config/data";
 import { CalendarEvent } from "../models/CalendarEvent";
+import { Employee } from "../models/Employee";
 
 const drawerWidth = 240;
 
-const Home = () => {
+type Props = {
+  employees: Employee[];
+};
+
+const Home = ({ employees }: Props) => {
   const [currentItem, setCurrentItem] = useState("Calendar");
 
   const onClickItem = (item: string) => {
@@ -103,7 +110,10 @@ const Home = () => {
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
 
-        <WorkCalendar visible={currentItem === "Calendar"} />
+        <WorkCalendar
+          visible={currentItem === "Calendar"}
+          employees={employees}
+        />
         {currentItem === "Export excel" && <ExportBoard />}
 
         {currentItem !== "Calendar" && currentItem !== "Export excel" && (
@@ -115,3 +125,9 @@ const Home = () => {
 };
 
 export default Home;
+
+export const getServerSideProps: GetServerSideProps = async (context: any) => {
+  return {
+    props: { employees: Employees },
+  };
+};

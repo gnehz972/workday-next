@@ -1,5 +1,7 @@
 import { endOfMonth, parseISO, startOfMonth } from "date-fns";
+import { groupBy, orderBy } from "lodash";
 import { ObjectId } from "mongodb";
+import { Employees } from "../config/data";
 import { CalendarEvent } from "../models/CalendarEvent";
 import { connectToDatabase } from "./mongodb";
 
@@ -15,7 +17,7 @@ export const deleteEvent = async (id: any) => {
 
 export const getAllEventByRange = async (start: Date, end: Date) => {
   const { db } = await connectToDatabase();
-  const result = await db
+  const result = (await db
     .collection("Event")
     .find({
       $or: [
@@ -23,9 +25,16 @@ export const getAllEventByRange = async (start: Date, end: Date) => {
         { end: { $gte: start, $lte: end } },
       ],
     })
-    .toArray();
+    .toArray()) as CalendarEvent[];
 
-  return result;
+  const employeeGroupA = groupBy(Employees, "group")["A"].map((it) => it.name);
+
+  const ordered = orderBy(
+    result,
+    (it) => employeeGroupA && employeeGroupA.includes(it.employee)
+  );
+
+  return ordered;
 };
 
 export const getAllEventOfCurrentMonth = async () => {

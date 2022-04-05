@@ -1,11 +1,3 @@
-import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
-import format from "date-fns/format";
-import parse from "date-fns/parse";
-import startOfWeek from "date-fns/startOfWeek";
-import getDay from "date-fns/getDay";
-import enUS from "date-fns/locale/en-US";
-import { FC, useCallback, useEffect, useMemo, useState } from "react";
-import { CalendarEvent } from "../models/CalendarEvent";
 import {
   Button,
   Dialog,
@@ -17,15 +9,25 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  TextField,
 } from "@mui/material";
+import { Box, color } from "@mui/system";
 import { endOfMonth, startOfMonth } from "date-fns";
+import format from "date-fns/format";
+import getDay from "date-fns/getDay";
+import enUS from "date-fns/locale/en-US";
+import parse from "date-fns/parse";
+import startOfWeek from "date-fns/startOfWeek";
+import { find } from "lodash";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
+import { Shift, ShiftLabel } from "../config/data";
+import { CalendarEvent } from "../models/CalendarEvent";
+import { Employee } from "../models/Employee";
 import {
   formatQueryDate,
   formatReadDate,
   receiver,
 } from "../utils/date-helper";
-import { Box } from "@mui/system";
 
 const locales = {
   "en-US": enUS,
@@ -41,9 +43,10 @@ const localizer = dateFnsLocalizer({
 
 type Props = {
   visible: boolean;
+  employees: Employee[];
 };
 
-export const WorkCalendar: FC<Props> = ({ visible }) => {
+export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
 
   const fetchEvent = async () => {
@@ -115,8 +118,8 @@ export const WorkCalendar: FC<Props> = ({ visible }) => {
     setOpen(false);
   };
 
-  const [shift, setShift] = useState("白班");
-  const [employee, setEmployee] = useState("张三");
+  const [shift, setShift] = useState(Shift[0]);
+  const [employee, setEmployee] = useState(employees[0].name);
 
   const handleChange = (value: string) => {
     setShift(value);
@@ -169,6 +172,16 @@ export const WorkCalendar: FC<Props> = ({ visible }) => {
     setSelectedEvent(undefined);
   };
 
+  const eventPropGetter = (event: CalendarEvent) => {
+    console.log("eventPropGetter event=", event);
+
+    const backgroundColor =
+      find(employees, (it) => it.name === event.employee)?.group === "A"
+        ? "#FCE4D6"
+        : "#DCEBF7";
+    return { style: { backgroundColor, color: "black" } };
+  };
+
   if (!visible) {
     return null;
   }
@@ -185,7 +198,8 @@ export const WorkCalendar: FC<Props> = ({ visible }) => {
         onSelectSlot={handleSelectSlot}
         selectable
         scrollToTime={scrollToTime}
-        style={{ height: 800 }}
+        eventPropGetter={eventPropGetter}
+        style={{ height: 1400 }}
       />
       <Dialog open={open} onClose={handleClose} fullWidth>
         <DialogTitle>添加排班</DialogTitle>
@@ -200,9 +214,11 @@ export const WorkCalendar: FC<Props> = ({ visible }) => {
               label="排班"
               onChange={(e: any) => handleChange(e.target.value)}
             >
-              <MenuItem value={"白"}>白班</MenuItem>
-              <MenuItem value={"中"}>中班</MenuItem>
-              <MenuItem value={"晚"}>晚班</MenuItem>
+              {Shift.map((shift, index) => (
+                <MenuItem key={index} value={shift}>
+                  {ShiftLabel[index]}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -214,9 +230,11 @@ export const WorkCalendar: FC<Props> = ({ visible }) => {
               label="职员"
               onChange={(e: any) => handleEmployeeChange(e.target.value)}
             >
-              <MenuItem value={"张三"}>张三</MenuItem>
-              <MenuItem value={"李四"}>李四</MenuItem>
-              <MenuItem value={"王五"}>王五</MenuItem>
+              {employees.map((employee, index) => (
+                <MenuItem key={index} value={employee.name}>
+                  {employee.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </DialogContent>
@@ -238,11 +256,6 @@ export const WorkCalendar: FC<Props> = ({ visible }) => {
             结束时间：
             {selectedEvent && formatReadDate(selectedEvent.end)}
           </DialogContentText>
-          {/* <DialogContentText>{selectedEvent?.title}</DialogContentText>
-          <DialogContentText>
-            开始时间： {selectedEvent?.start}
-          </DialogContentText>
-          <DialogContentText>结束时间：{selectedEvent?.end}</DialogContentText> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSelectedEvent(undefined)}>取消</Button>
