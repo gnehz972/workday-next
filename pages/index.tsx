@@ -30,13 +30,13 @@ type Props = {
 };
 
 const Home = ({ employees }: Props) => {
-  const [currentItem, setCurrentItem] = useState("Calendar");
+  const [currentItem, setCurrentItem] = useState("排班安排");
 
   const onClickItem = (item: string) => {
     setCurrentItem(item);
   };
-  const itemsTop = ["Calendar", "Dashboard", "Export excel", "Stastic"];
-  const itemsBottom = ["Account", "Setting"];
+  const itemsTop = ["排班安排", "统计数据", "导出Excel"];
+  const itemsBottom = ["账户", "设置"];
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -111,12 +111,12 @@ const Home = ({ employees }: Props) => {
         <Toolbar />
 
         <WorkCalendar
-          visible={currentItem === "Calendar"}
+          visible={currentItem === "排班安排"}
           employees={employees}
         />
-        {currentItem === "Export excel" && <ExportBoard />}
+        {currentItem === "导出Excel" && <ExportBoard />}
 
-        {currentItem !== "Calendar" && currentItem !== "Export excel" && (
+        {currentItem !== "排班安排" && currentItem !== "导出Excel" && (
           <Typography paragraph>{currentItem}</Typography>
         )}
       </Box>

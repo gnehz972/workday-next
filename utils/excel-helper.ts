@@ -1,18 +1,8 @@
-import { getAllEventByRange, getAllEventOfCurrentMonth } from "./db-helper";
+import { endOfMonth, format, startOfMonth } from "date-fns";
 import { Workbook } from "exceljs";
-import {
-  addDays,
-  differenceInDays,
-  endOfMonth,
-  format,
-  getDaysInMonth,
-  startOfMonth,
-} from "date-fns";
-import { da } from "date-fns/locale";
-import { CalendarEvent } from "../models/CalendarEvent";
-import { DayEvent } from "../models/DayEvent";
-import { chain, find, flow, groupBy, map, orderBy } from "lodash";
+import { chain, find } from "lodash";
 import { getDaysBetweenDates, splitToDayEvent } from "./date-helper";
+import { getAllEventByRange } from "./db-helper";
 
 export const exportExcel = async (startTime: Date, endTime: Date) => {
   const allEvent = await getAllEventByRange(startTime, endTime);

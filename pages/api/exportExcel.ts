@@ -15,6 +15,8 @@ export default async function handler(
     case "GET":
       const start = query.start as string;
       const end = query.end as string;
+      console.log("parsed start=", parseQueryDate(start));
+      console.log("parsed end=", parseQueryDate(end));
 
       const buffer = await exportExcel(
         parseQueryDate(start),

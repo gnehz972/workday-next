@@ -12,7 +12,7 @@ export const formatQueryDate = (date: Date) => format(date, queryDatePattern);
 export const formatReadDate = (date: Date) => format(date, "yyyy年MM月dd日");
 
 const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
-export const receiver = (key: string, value: any) => {
+export const jsonReceiver = (key: string, value: any) => {
   if (typeof value === "string" && dateFormat.test(value)) {
     return new Date(value);
   }
@@ -43,7 +43,7 @@ export const getDaysBetweenDates = (start: Date, end: Date) => {
   console.log("dayCount=", dayCount);
 
   const days = [];
-  for (let count = 0; count < dayCount; count++) {
+  for (let count = 0; count <= dayCount; count++) {
     const day = addDays(start, count);
     days.push(day);
   }

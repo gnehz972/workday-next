@@ -11,10 +11,11 @@ import {
   Select,
 } from "@mui/material";
 import { Box, color } from "@mui/system";
-import { endOfMonth, startOfMonth } from "date-fns";
+import { endOfMonth, startOfDay, endOfDay, startOfMonth } from "date-fns";
+import { addMonths } from "date-fns/esm";
 import format from "date-fns/format";
 import getDay from "date-fns/getDay";
-import enUS from "date-fns/locale/en-US";
+import zhCN from "date-fns/locale/zh-CN";
 import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
 import { find } from "lodash";
@@ -26,11 +27,11 @@ import { Employee } from "../models/Employee";
 import {
   formatQueryDate,
   formatReadDate,
-  receiver,
+  jsonReceiver,
 } from "../utils/date-helper";
 
 const locales = {
-  "en-US": enUS,
+  "zh-CN": zhCN,
 };
 
 const localizer = dateFnsLocalizer({
@@ -40,6 +41,23 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 });
+
+const messages = {
+  date: "日期",
+  time: "时间",
+  event: "安排",
+  allDay: "全天",
+  week: "周",
+  day: "天",
+  month: "月",
+  previous: "往前",
+  next: "往后",
+  yesterday: "昨天",
+  tomorrow: "明天",
+  today: "今天",
+  agenda: "排班",
+  noEventsInRange: "该时间范围内没有安排",
+};
 
 type Props = {
   visible: boolean;
@@ -51,9 +69,8 @@ export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
 
   const fetchEvent = async () => {
     console.log("zoz fetch event");
-    const date = new Date();
-    const start = startOfMonth(date);
-    const end = endOfMonth(date);
+    const start = startOfMonth(new Date());
+    const end = addMonths(start, 1);
     const response = await fetch(
       `/api/calendar-events?start=${formatQueryDate(
         start
@@ -67,7 +84,7 @@ export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
       }
     );
     const content = await response.json();
-    const events = JSON.parse(JSON.stringify(content), receiver);
+    const events = JSON.parse(JSON.stringify(content), jsonReceiver);
     console.log("zoz content=", content);
     console.log("zoz events=", events);
 
@@ -106,7 +123,6 @@ export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
     }),
     []
   );
-  const dayLayoutAlgorithm = "no-overlap";
 
   const [open, setOpen] = useState(false);
 
@@ -173,8 +189,6 @@ export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
   };
 
   const eventPropGetter = (event: CalendarEvent) => {
-    console.log("eventPropGetter event=", event);
-
     const backgroundColor =
       find(employees, (it) => it.name === event.employee)?.group === "A"
         ? "#FCE4D6"
@@ -189,11 +203,13 @@ export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
   return (
     <Box>
       <Calendar
-        dayLayoutAlgorithm={dayLayoutAlgorithm}
+        culture={"zh-CN"}
         defaultDate={defaultDate}
         defaultView={Views.MONTH}
         events={events}
         localizer={localizer}
+        messages={messages}
+        views={["month"]}
         onSelectEvent={handleSelectEvent}
         onSelectSlot={handleSelectSlot}
         selectable

@@ -21,8 +21,8 @@ export const getAllEventByRange = async (start: Date, end: Date) => {
     .collection("Event")
     .find({
       $or: [
-        { start: { $gte: start, $lte: end } },
-        { end: { $gte: start, $lte: end } },
+        { start: { $gte: start, $lt: end } },
+        { end: { $gte: start, $lt: end } },
       ],
     })
     .toArray()) as CalendarEvent[];

@@ -7,5 +7,5 @@ export const Employees: Employee[] = process.env.EMPLOYEES
       { name: "李四", group: "A" },
       { name: "王五", group: "B" },
     ];
-export const Shift = ["白", "中", "晚", "请假", "年假"];
-export const ShiftLabel = ["白班", "中班", "晚班", "请假", "年假"];
+export const Shift = ["白", "中", "晚", "请假", "休假"];
+export const ShiftLabel = ["白班", "中班", "晚班", "请假", "休假"];
