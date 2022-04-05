@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { receiver } from "../../utils/date-helper";
+import { jsonReceiver } from "../../utils/date-helper";
 import { deleteEvent, saveEvent } from "../../utils/db-helper";
 import { connectToDatabase } from "../../utils/mongodb";
 
@@ -14,7 +14,7 @@ export default async function handler(
       const body = req.body;
       console.log("body=", body);
 
-      const event = JSON.parse(JSON.stringify(body), receiver);
+      const event = JSON.parse(JSON.stringify(body), jsonReceiver);
       console.log("event=", event);
 
       const result = await saveEvent(event);

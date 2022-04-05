@@ -39,13 +39,11 @@ export const splitToDayEvent = (calendarEvents: CalendarEvent[]) => {
 };
 
 export const getDaysBetweenDates = (start: Date, end: Date) => {
-  const dayCount = differenceInDays(end, start);
-  console.log("dayCount=", dayCount);
-
   const days = [];
-  for (let count = 0; count <= dayCount; count++) {
-    const day = addDays(start, count);
+  let day = start;
+  while (day < end) {
     days.push(day);
+    day = addDays(day, 1);
   }
   return days;
 };

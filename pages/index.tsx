@@ -20,7 +20,6 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { ExportBoard } from "../component/ExportBoard";
 import { WorkCalendar } from "../component/WorkCalendar";
 import { Employees } from "../config/data";
-import { CalendarEvent } from "../models/CalendarEvent";
 import { Employee } from "../models/Employee";
 
 const drawerWidth = 240;
