@@ -1,13 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { jsonReceiver } from "../../utils/date-helper";
 import { deleteEvent, saveEvent } from "../../utils/db-helper";
-import { connectToDatabase } from "../../utils/mongodb";
+import { withIronSessionApiRoute } from "iron-session/next";
+import { sessionOptions } from "../../auth/session";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<any>
-) {
-  const { method } = req;
+export default withIronSessionApiRoute(handler, sessionOptions);
+
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { method, session } = req;
+  const user = session.user;
+
+  if (!user || !user.username) {
+    res.status(401).end();
+    return;
+  }
 
   switch (method) {
     case "PUT":
@@ -20,14 +26,14 @@ export default async function handler(
       const result = await saveEvent(event);
 
       console.log(result);
-      res.status(200).json(result);
+      res.json(result);
       break;
     case "DELETE":
       const id = req.body;
       console.log("DELETE id=", id);
       const deleteResult = await deleteEvent(id);
       console.log(deleteResult);
-      res.status(200).json(deleteResult);
+      res.json(deleteResult);
       break;
 
     default:

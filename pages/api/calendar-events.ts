@@ -1,14 +1,22 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { connectToDatabase } from "../../utils/mongodb";
-import { CalendarEvent } from "../../models/CalendarEvent";
 import { getAllEventByRange } from "../../utils/db-helper";
 import { parseQueryDate } from "../../utils/date-helper";
+import { withIronSessionApiRoute } from "iron-session/next";
+import { sessionOptions } from "../../auth/session";
 
-export default async function handler(
+export default withIronSessionApiRoute(handler, sessionOptions);
+
+async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<any>
+  res: NextApiResponse
 ) {
-  const { method } = req;
+  const { method, session } = req;
+  const user = session.user;
+
+  if (!user || !user.username) {
+    res.status(401).end();
+    return;
+  }
 
   switch (method) {
     case "GET":
@@ -22,7 +30,7 @@ export default async function handler(
       );
 
       console.log(events);
-      res.status(200).json(events);
+      res.json(events);
       break;
     default:
       res.setHeader("Allow", ["GET"]);

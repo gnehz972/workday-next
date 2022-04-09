@@ -1,14 +1,10 @@
 import { useFetchEvent } from "../data-access/useFetchEvent";
 import { useEffect } from "react";
-import { addMonths, startOfMonth } from "date-fns";
 import { chain, groupBy } from "lodash";
 import { BarData } from "../models/BarData";
-import {getCurrentMonthSpan} from "../utils/date-helper";
+import { getCurrentMonthSpan } from "../utils/date-helper";
 
 export const useStatisticBoard = () => {
-  const start = startOfMonth(new Date());
-  const end = addMonths(start, 1);
-
   const { events, fetchEvent } = useFetchEvent(getCurrentMonthSpan());
   useEffect(() => {
     fetchEvent();

@@ -1,15 +1,22 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { connectToDatabase } from "../../utils/mongodb";
-import { CalendarEvent } from "../../models/CalendarEvent";
 import { exportExcel } from "../../utils/excel-helper";
-import { parse } from "date-fns";
 import { parseQueryDate } from "../../utils/date-helper";
+import { withIronSessionApiRoute } from "iron-session/next";
+import { sessionOptions } from "../../auth/session";
 
-export default async function handler(
+export default withIronSessionApiRoute(handler, sessionOptions);
+
+async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<any>
+  res: NextApiResponse
 ) {
-  const { method, query } = req;
+  const { method,query, session } = req;
+  const user = session.user;
+
+  if (!user || !user.username) {
+    res.status(401).end();
+    return;
+  }
 
   switch (method) {
     case "GET":
@@ -30,7 +37,7 @@ export default async function handler(
         "Content-Disposition",
         "attachment; filename=" + "report.xlsx"
       );
-      res.status(200).send(buffer);
+      res.send(buffer);
       //   res.status(200).json("exportExcel success!");
       break;
     default:
