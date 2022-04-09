@@ -1,4 +1,11 @@
-import { parse, format, differenceInDays, addDays } from "date-fns";
+import {
+  parse,
+  format,
+  differenceInDays,
+  addDays,
+  startOfMonth,
+  addMonths,
+} from "date-fns";
 import { CalendarEvent } from "../models/CalendarEvent";
 import { DayEvent } from "../models/DayEvent";
 
@@ -46,4 +53,10 @@ export const getDaysBetweenDates = (start: Date, end: Date) => {
     day = addDays(day, 1);
   }
   return days;
+};
+
+export const getCurrentMonthSpan = () => {
+  const start = startOfMonth(new Date());
+  const end = addMonths(start, 1);
+  return { start, end };
 };

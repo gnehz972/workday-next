@@ -21,6 +21,7 @@ import { ExportBoard } from "../component/ExportBoard";
 import { WorkCalendar } from "../component/WorkCalendar";
 import { Employees } from "../config/data";
 import { Employee } from "../models/Employee";
+import { StatisticsBoard } from "../component/StatisticsBoard";
 
 const drawerWidth = 240;
 
@@ -108,14 +109,13 @@ const Home = ({ employees }: Props) => {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
-
         <WorkCalendar
           visible={currentItem === "排班安排"}
           employees={employees}
         />
         {currentItem === "导出Excel" && <ExportBoard />}
-
-        {currentItem !== "排班安排" && currentItem !== "导出Excel" && (
+        {currentItem === "统计数据" && <StatisticsBoard />}
+        {currentItem !== "排班安排" && currentItem !== "导出Excel" && currentItem!=="统计数据" && (
           <Typography paragraph>{currentItem}</Typography>
         )}
       </Box>

@@ -11,7 +11,6 @@ import {
   Select,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { addMonths, startOfMonth } from "date-fns";
 import format from "date-fns/format";
 import getDay from "date-fns/getDay";
 import zhCN from "date-fns/locale/zh-CN";
@@ -23,11 +22,8 @@ import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import { Shift, ShiftLabel } from "../config/data";
 import { CalendarEvent } from "../models/CalendarEvent";
 import { Employee } from "../models/Employee";
-import {
-  formatQueryDate,
-  formatReadDate,
-  jsonReceiver,
-} from "../utils/date-helper";
+import { formatReadDate, getCurrentMonthSpan } from "../utils/date-helper";
+import { useFetchEvent } from "../data-access/useFetchEvent";
 
 const locales = {
   "zh-CN": zhCN,
@@ -64,31 +60,8 @@ type Props = {
 };
 
 export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
 
-  const fetchEvent = async () => {
-    console.log("zoz fetch event");
-    const start = startOfMonth(new Date());
-    const end = addMonths(start, 1);
-    const response = await fetch(
-      `/api/calendar-events?start=${formatQueryDate(
-        start
-      )}&end=${formatQueryDate(end)}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      }
-    );
-    const content = await response.json();
-    const events = JSON.parse(JSON.stringify(content), jsonReceiver);
-    console.log("zoz content=", content);
-    console.log("zoz events=", events);
-
-    setEvents(events);
-  };
+  const {events,fetchEvent,appendEvent} = useFetchEvent(getCurrentMonthSpan());
 
   useEffect(() => {
     fetchEvent();
@@ -163,7 +136,7 @@ export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
       body: JSON.stringify(event),
     });
 
-    setEvents((pre) => [...pre, event]);
+    appendEvent(event);
     console.log("save");
 
     setOpen(false);
