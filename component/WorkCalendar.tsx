@@ -24,6 +24,7 @@ import { CalendarEvent } from "../models/CalendarEvent";
 import { Employee } from "../models/Employee";
 import { formatReadDate, getCurrentMonthSpan } from "../utils/date-helper";
 import { useFetchEvent } from "../data-access/useFetchEvent";
+import { useSnackbar } from "notistack";
 
 const locales = {
   "zh-CN": zhCN,
@@ -60,12 +61,14 @@ type Props = {
 };
 
 export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
-
-  const {events,fetchEvent,appendEvent} = useFetchEvent(getCurrentMonthSpan());
+  const { events, fetchEvent, appendEvent } = useFetchEvent(
+    getCurrentMonthSpan()
+  );
 
   useEffect(() => {
     fetchEvent();
   }, []);
+  const { enqueueSnackbar } = useSnackbar();
 
   console.log("zoz WorkCalendar event=", events);
 
@@ -127,7 +130,7 @@ export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
       created: new Date(),
     };
 
-    await fetch("/api/calendar-event", {
+    const response = await fetch("/api/calendar-event", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -135,10 +138,14 @@ export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
       },
       body: JSON.stringify(event),
     });
-
-    appendEvent(event);
-    console.log("save");
-
+    if (response.ok) {
+      const event = await response.json();
+      appendEvent(JSON.parse(JSON.stringify(event)));
+      enqueueSnackbar("添加成功", { variant: "success" });
+    } else {
+      const { errorMsg } = await response.json();
+      enqueueSnackbar(errorMsg,{variant:"error"});
+    }
     setOpen(false);
   };
 
@@ -149,7 +156,7 @@ export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
   };
 
   const deleteCalendarEvent = async (event: CalendarEvent) => {
-    await fetch("/api/calendar-event", {
+   const response = await fetch("/api/calendar-event", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -157,6 +164,12 @@ export const WorkCalendar: FC<Props> = ({ visible, employees }) => {
       },
       body: JSON.stringify(event._id),
     });
+   if (response.ok){
+     enqueueSnackbar("删除成功")
+   } else {
+     const { errorMsg } = await response.json();
+     enqueueSnackbar(errorMsg,{variant:"error"});
+   }
     setSelectedEvent(undefined);
   };
 

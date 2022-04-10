@@ -7,7 +7,17 @@ import { connectToDatabase } from "./mongodb";
 
 export const saveEvent = async (event: CalendarEvent) => {
   const { db } = await connectToDatabase();
-  return db.collection("Event").insertOne(event);
+  const start = event.start;
+  const end = event.end;
+  return db.collection("Event").update(
+    {
+      employee: event.employee,
+      start: { $lt: end },
+      end: { $gt: start },
+    },
+    { $setOnInsert: event },
+    { upsert: true }
+  );
 };
 
 export const deleteEvent = async (id: any) => {
@@ -20,10 +30,8 @@ export const getAllEventByRange = async (start: Date, end: Date) => {
   const result = (await db
     .collection("Event")
     .find({
-      $or: [
-        { start: { $gte: start, $lt: end } },
-        { end: { $gte: start, $lt: end } },
-      ],
+      start: { $lt: end },
+      end: { $gt: start },
     })
     .toArray()) as CalendarEvent[];
 

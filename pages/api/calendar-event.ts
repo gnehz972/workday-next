@@ -24,16 +24,28 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       console.log("event=", event);
 
       const result = await saveEvent(event);
-
       console.log(result);
-      res.json(result);
+      if (result && result.acknowledged && result.upsertedId) {
+        event.id = result.upsertedId;
+        res.json(result);
+      } else {
+        res.status(400).json({ errorMsg: "添加失败" });
+      }
       break;
     case "DELETE":
       const id = req.body;
       console.log("DELETE id=", id);
       const deleteResult = await deleteEvent(id);
       console.log(deleteResult);
-      res.json(deleteResult);
+      if (
+        deleteResult &&
+        deleteResult.acknowledged &&
+        deleteResult.deletedCount == 1
+      ) {
+        res.json({ id });
+      } else {
+        res.status(400).json({ errorMsg: "删除失败" });
+      }
       break;
 
     default:
