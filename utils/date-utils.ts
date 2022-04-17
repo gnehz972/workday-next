@@ -6,8 +6,8 @@ import {
   startOfMonth,
   addMonths,
 } from "date-fns";
-import { CalendarEvent } from "../models/CalendarEvent";
-import { DayEvent } from "../models/DayEvent";
+import { CalendarEvent } from "../data/models/CalendarEvent";
+import { DayEvent } from "../data/models/DayEvent";
 
 const queryDatePattern = "yyyyMMdd";
 

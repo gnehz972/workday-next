@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { LoginOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
-import { useLogin } from "../auth/useLogin";
+import { useLogin } from "../features/auth/useLogin";
 import { useRouter } from "next/router";
 
 const Login: FC = () => {

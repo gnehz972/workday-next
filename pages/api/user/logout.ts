@@ -1,4 +1,4 @@
-import { sessionOptions } from "../../../auth/session";
+import { sessionOptions } from "../../../features/auth/session";
 
 import { withIronSessionApiRoute } from "iron-session/next";
 import { NextApiRequest, NextApiResponse } from "next";

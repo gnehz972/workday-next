@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { useStatisticBoard } from "./useStatisticBoard";
-import { BarNameArray } from "../models/BarData";
+import { BarNameArray } from "../../data/models/BarData";
 
 export const StatisticsBoard: FC = () => {
   const { barData } = useStatisticBoard();

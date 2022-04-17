@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getAllEventByRange } from "../../utils/db-helper";
-import { parseQueryDate } from "../../utils/date-helper";
+import { getAllEventByRange } from "../../data/db/db-utils";
+import { parseQueryDate } from "../../utils/date-utils";
 import { withIronSessionApiRoute } from "iron-session/next";
-import { sessionOptions } from "../../auth/session";
+import { sessionOptions } from "../../features/auth/session";
 
 export default withIronSessionApiRoute(handler, sessionOptions);
 

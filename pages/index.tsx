@@ -17,11 +17,11 @@ import {
 import { GetServerSideProps } from "next";
 import { useState } from "react";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { ExportBoard } from "../component/ExportBoard";
-import { WorkCalendar } from "../component/WorkCalendar";
-import { Employees } from "../config/data";
-import { Employee } from "../models/Employee";
-import { StatisticsBoard } from "../component/StatisticsBoard";
+import { ExportBoard } from "../features/export/ExportBoard";
+import { WorkCalendar } from "../features/work-calendar/WorkCalendar";
+import { Employees } from "../data/config/data";
+import { Employee } from "../data/models/Employee";
+import { StatisticsBoard } from "../features/statistic/StatisticsBoard";
 
 const drawerWidth = 240;
 

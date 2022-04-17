@@ -44,11 +44,3 @@ export const getAllEventByRange = async (start: Date, end: Date) => {
 
   return ordered;
 };
-
-export const getAllEventOfCurrentMonth = async () => {
-  const date = new Date();
-  const start = startOfMonth(date);
-  const end = endOfMonth(date);
-
-  return getAllEventByRange(start, end);
-};

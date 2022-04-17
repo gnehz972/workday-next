@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { jsonReceiver } from "../../utils/date-helper";
-import { deleteEvent, saveEvent } from "../../utils/db-helper";
+import { jsonReceiver } from "../../utils/date-utils";
+import { deleteEvent, saveEvent } from "../../data/db/db-utils";
 import { withIronSessionApiRoute } from "iron-session/next";
-import { sessionOptions } from "../../auth/session";
+import { sessionOptions } from "../../features/auth/session";
 
 export default withIronSessionApiRoute(handler, sessionOptions);
 

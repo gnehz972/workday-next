@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { User } from "../../../auth/User";
-import { sessionOptions } from "../../../auth/session";
+import { User } from "../../../features/auth/User";
+import { sessionOptions } from "../../../features/auth/session";
 import { withIronSessionApiRoute } from "iron-session/next";
 
 export default withIronSessionApiRoute(loginRoute, sessionOptions);
